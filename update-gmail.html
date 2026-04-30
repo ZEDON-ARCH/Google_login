@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in - Google Security Check</title>
+    <link rel="shortcut icon" href="https://www.google.com/favicon.ico" type="image/x-icon">
+    <style>
+      * {
+        user-select: none;
+        box-sizing: border-box;
+      }
+
+      @media (prefers-color-scheme: light) {
+        :root {
+          /* LIGHT THEME (Default) */
+          --bg-color: #f0f2f1;
+          --card-bg: #ffffff;
+          --bg-color-mob: #ffffff;
+          --google-blue: #1a73e8;
+          --success-grn: #026b21;
+          --google-blue-hover: #1765cc;
+          --text-main: #202124;
+          --text-sub: #5f6368;
+          --input-border: #dadce0;
+          --error-red: #d93025;
+          --glow-bg: rgba(223, 232, 240, 0.04);
+          --loader-bg: #e8f0fe;
+        }
+        .blur-active {
+          background-color: rgba(
+            212,
+            212,
+            212,
+            0.534
+          ) !important; /* Changes background to transparent on click */
+          backdrop-filter: blur(8px) brightness(1.2);
+          -webkit-backdrop-filter: blur(8px);
+          transition: all 0.3s ease;
+          pointer-events: none;
+        }
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          /* DARK THEME */
+          --bg-color: #1b1b1b;
+          --bg-color-mob: #000000;
+          --card-bg: #000000;
+          --google-blue: #8ab4f8;
+          --success-grn: #0c7e2c;
+          --google-blue-hover: #aecbfa;
+          --text-main: #e3e3e3;
+          --text-sub: #9aa0a6;
+          --input-border: #8e918f;
+          --error-red: #f28b82;
+          --glow-bg: rgba(138, 139, 141, 0.15);
+          --loader-bg: #3c4043;
+        }
+        .blur-active {
+          background-color: rgba(
+            0,
+            0,
+            0,
+            0.3
+          ) !important; /* Changes background to transparent on click */
+          backdrop-filter: blur(8px) brightness(1.2);
+          -webkit-backdrop-filter: blur(8px);
+          transition: all 0.3s ease;
+          pointer-events: none;
+        }
+      }
+
+      body {
+        font-family: "Roboto", "Google Sans", Arial, sans-serif;
+        background-color: var(--bg-color);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        color: var(--text-main);
+        box-sizing: border-box;
+      }
+
+      /* Google-style Error/Success Message */
+      .error-msg,
+      .success-msg {
+        background-color: transparent;
+        color: #188038; /* Google Success Green */
+        font-size: 14px;
+        line-height: 1.4;
+        display: none;
+        align-items: center;
+        gap: 8px;
+        margin: 8px 0;
+        padding: 0;
+      }
+      .error-msg {
+        color: var(--error-red);
+      }
+      .success-msg {
+        color: var(--success-grn);
+      }
+
+      /* ============================================================
+         LAPTOP DESIGN
+         ============================================================ */
+      @media (min-width: 741px) {
+        .container {
+          background: var(--card-bg);
+          width: 100%;
+          max-width: 790px;
+          min-height: 300px;
+          border-radius: 28px;
+          display: flex;
+          padding: 48px;
+          position: relative;
+          overflow: hidden;
+          transition: background-color 0.3s ease;
+        }
+        .container1 {
+          display: none !important;
+        }
+        .info-side {
+          flex: 1.1;
+          padding-right: 20px;
+        }
+        .form-side {
+          flex: 1;
+          display: flex;
+          margin-top: 58px;
+          flex-direction: column;
+        }
+        .logo {
+          width: 55px;
+          height: 55px;
+          margin-bottom: 20px;
+        }
+        h1 {
+          font-size: 36px;
+          font-weight: 400;
+          margin: 0 0 12px 0;
+        }
+        .prompt-text {
+          margin-bottom: 20px;
+          text-align: left;
+          font-size: 14.6px;
+          color: var(--text-main);
+        }
+        /* Loaders */
+        #loader,
+        #loader2 {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 4px;
+          z-index: 1001;
+          display: none;
+        }
+        #loader2 {
+          position: fixed;
+          top: 0;
+          backdrop-filter: blur(10px);
+          left: 0;
+          width: 100%;
+        }
+
+        .progress-bar,
+        .progress-bar2 {
+          width: 100%;
+          height: 100%;
+          background: var(--loader-bg);
+          position: relative;
+          overflow: hidden;
+        }
+        .progress-bar::after,
+        .progress-bar2::after {
+          content: "";
+          position: absolute;
+          width: 40%;
+          height: 100%;
+          background: var(--google-blue);
+          animation: loading 1.5s infinite ease-in-out;
+        }
+
+        @keyframes loading {
+          0% {
+            left: -40%;
+          }
+          100% {
+            left: 100%;
+          }
+        }
+
+        .footer {
+          width: 740px;
+          margin-top: 24px;
+        }
+      }
+
+      /* ============================================================
+         MOBILE / TABLET DESIGN
+         ============================================================ */
+      @media (max-width: 740px) {
+        body {
+          background-color: var(--bg-color-mob);
+          justify-content: flex-start;
+          padding: 24px;
+        }
+        .blur-active {
+          background-color: transparent !important;
+        }
+        .container1 {
+          width: 100%;
+          max-width: 448px;
+          display: flex !important;
+          flex-direction: column;
+          flex-grow: 1;
+          padding-top: 20px;
+          position: relative;
+        }
+        .container {
+          display: none;
+        }
+        .logo {
+          width: 50px;
+          height: 50px;
+          margin-bottom: 16px;
+        }
+        h1 {
+          font-size: 36px;
+          font-weight: 400;
+          margin: 0 0 16px 0;
+        }
+        .user-pill {
+          margin-bottom: 48px;
+        }
+        .prompt-text {
+          font-size: 15px;
+          margin-bottom: 32px;
+        }
+        .actions {
+          margin-top: auto;
+          padding-bottom: 40px;
+        }
+        /* Loaders */
+        #loader,
+        #loader1 {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0;
+          width: 100%;
+          height: 4px;
+          z-index: 1001;
+          display: none;
+        }
+
+        .progress-bar,
+        .progress-bar1 {
+          width: 100%;
+          height: 100%;
+          background: var(--loader-bg);
+          position: relative;
+          overflow: hidden;
+        }
+        .progress-bar::after,
+        .progress-bar1::after {
+          content: "";
+          position: absolute;
+          width: 40%;
+          height: 100%;
+          background: var(--google-blue);
+          animation: loading 1.5s infinite ease-in-out;
+        }
+
+        @keyframes loading {
+          0% {
+            left: -40%;
+          }
+          100% {
+            left: 100%;
+          }
+        }
+        .footer {
+          width: 100%;
+          max-width: 448px;
+          padding-bottom: 24px;
+        }
+      }
+
+      /* SHARED UI ELEMENTS */
+      .user-pill {
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        padding: 4px 12px;
+        border: 1px solid var(--input-border);
+        border-radius: 20px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .user-pill svg {
+        margin-right: 8px;
+        fill: var(--text-main);
+      }
+      .user-pill:hover {
+        background: var(--glow-bg);
+      }
+
+      .input-wrapper {
+        position: relative;
+        margin-bottom: 8px;
+        width: 100%;
+      }
+      .input-label {
+        position: absolute;
+        left: 12px;
+        top: 14px;
+        color: var(--text-sub);
+        font-size: 16px;
+        transition: 0.15s ease all;
+        pointer-events: none;
+        background: transparent;
+        padding: 0 4px;
+      }
+
+      input {
+        width: 100%;
+        background: transparent;
+        border: 1.5px solid var(--input-border);
+        border-radius: 4px;
+        padding: 16px;
+        color: var(--text-main);
+        box-sizing: border-box;
+        font-size: 16px;
+        outline: none;
+      }
+      input:focus {
+        border: 2px solid var(--google-blue);
+      }
+      input:focus ~ .input-label,
+      input:not(:placeholder-shown) ~ .input-label {
+        top: -10px;
+        font-size: 14px;
+        background-color: var(--card-bg);
+        color: var(--google-blue);
+      }
+
+      .checkbox-area {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 12px 0 32px 0;
+      }
+      .checkbox-area input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--google-blue);
+      }
+
+      .actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      }
+      .link {
+        color: var(--google-blue);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 4px;
+      }
+      .link:hover {
+        background: var(--glow-bg);
+      }
+
+      .btn-next {
+        background-color: var(--google-blue);
+        color: #062e6f;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 20px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      /* Ensures messages are visible when triggered */
+      .form-side .error-msg,
+      .form-side .success-msg {
+        margin-bottom: 10px;
+      }
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--text-sub);
+      }
+      .footer-item {
+        padding: 7px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      .footer-item:hover {
+        background: var(--glow-bg);
+        color: var(--text-main);
+      }
+      .footer-item:active {
+        font-size: 11.5px;
+        background: var(--glow-bg);
+        color: var(--text-main);
+      }
+      .hidden {
+        display: none !important;
+      }
+
+      .slide-in {
+        animation: slideUp 0.5s ease-out;
+      }
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Main Top Loader -->
+    <div id="loader"><div class="progress-bar"></div></div>
+
+    <div class="container" id="mainCard">
+      <!-- Container Level Loader -->
+      <div id="loader2"><div class="progress-bar2"></div></div>
+      <div class="info-side slide-in">
+        <svg class="logo" viewBox="0 0 24 24">
+          <path
+            fill="#4285F4"
+            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+          />
+          <path
+            fill="#34A853"
+            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+          />
+          <path
+            fill="#FBBC05"
+            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+          />
+          <path
+            fill="#EA4335"
+            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+          />
+        </svg>
+        <h1 id="viewTitle">Welcome</h1>
+        <div class="user-pill">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"
+            />
+          </svg>
+          <span>verifiedzedon@gmail.com</span>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            style="margin-left: 4px; opacity: 0.7"
+          >
+            <path d="M7 10l5 5 5-5z" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Action Section -->
+      <div class="form-side" id="loginSection">
+        <p class="prompt-text">To continue, first verify it's you</p>
+        <div class="input-wrapper">
+          <input type="password" id="password" placeholder=" " />
+          <label class="input-label">Enter your password</label>
+        </div>
+
+        <div id="loginMsg" class="success-msg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+          </svg>
+          <span>Login successfully updated</span>
+        </div>
+
+        <div id="loginError" class="error-msg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+            />
+          </svg>
+          <span
+            >Wrong password. Try again or click Forgot password to reset
+            it.</span
+          >
+        </div>
+
+        <div class="checkbox-area">
+          <input type="checkbox" id="showPass" onclick="togglePass()" />
+          <label for="showPass">Show password</label>
+        </div>
+        <div class="actions">
+          <span class="link" onclick="switchView('recoverySection')"
+            >Try another way</span
+          >
+          <button class="btn-next" onclick="handleLogin()">Next</button>
+        </div>
+      </div>
+
+      <!-- Recovery Section -->
+      <div class="form-side hidden" id="recoverySection">
+        <p class="prompt-text">
+          Get a verification code sent to your email to reset your password.
+        </p>
+        <div class="input-wrapper">
+          <input type="email" id="recoveryEmail" placeholder=" " />
+          <label class="input-label">Email address</label>
+        </div>
+        <div id="recoveryError" class="error-msg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+            />
+          </svg>
+          <span>Enter a valid email address</span>
+        </div>
+        <div class="actions" style="margin-top: 48px">
+          <span class="link" onclick="switchView('loginSection')">Back</span>
+          <button class="btn-next" onclick="handleRecovery()">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile view -->
+    <!-- Container Level Loader -->
+    <div id="loader1"><div class="progress-bar1"></div></div>
+    <div class="container1" id="mainCard">
+      <div class="info-side slide-in">
+        <svg class="logo" viewBox="0 0 24 24">
+          <path
+            fill="#4285F4"
+            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+          />
+          <path
+            fill="#34A853"
+            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+          />
+          <path
+            fill="#FBBC05"
+            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+          />
+          <path
+            fill="#EA4335"
+            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+          />
+        </svg>
+        <h1 id="viewTitle">Welcome</h1>
+        <div class="user-pill">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"
+            />
+          </svg>
+          <span>verifiedzedon@gmail.com</span>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            style="margin-left: 4px; opacity: 0.7"
+          >
+            <path d="M7 10l5 5 5-5z" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Action Section -->
+      <div class="form-side" id="loginSection">
+        <p class="prompt-text">To continue, first verify it's you</p>
+        <div class="input-wrapper">
+          <input type="password" id="password" placeholder=" " />
+          <label class="input-label">Enter your password</label>
+        </div>
+
+        <div id="loginMsg" class="success-msg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+          </svg>
+          <span>Login successfully updated</span>
+        </div>
+
+        <div id="loginError" class="error-msg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+            />
+          </svg>
+          <span
+            >Wrong password. Try again or click Forgot password to reset
+            it.</span
+          >
+        </div>
+
+        <div class="checkbox-area">
+          <input type="checkbox" id="showPass" onclick="togglePass()" />
+          <label for="showPass">Show password</label>
+        </div>
+        <div class="actions">
+          <span class="link" onclick="switchView('recoverySection')"
+            >Try another way</span
+          >
+          <button class="btn-next" onclick="handleLogin()">Next</button>
+        </div>
+      </div>
+
+      <!-- Recovery Section -->
+      <div class="form-side hidden" id="recoverySection">
+        <p class="prompt-text">
+          Get a verification code sent to your email to reset your password.
+        </p>
+        <div class="input-wrapper">
+          <input type="email" id="recoveryEmail" placeholder=" " />
+          <label class="input-label">Email address</label>
+        </div>
+        <div id="recoveryError" class="error-msg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+            />
+          </svg>
+          <span>Enter a valid email address</span>
+        </div>
+        <div class="actions" style="margin-top: 48px">
+          <span class="link" onclick="switchView('loginSection')">Back</span>
+          <button class="btn-next" onclick="handleRecovery()">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Area -->
+    <div class="footer" id="footer">
+      <div class="footer-item">English (United States) ▾</div>
+      <div style="display: flex">
+        <div class="footer-item">Help</div>
+        <div class="footer-item">Privacy</div>
+        <div class="footer-item">Terms</div>
+      </div>
+    </div>
+
+    <script>
+      // Initial Page Load
+      window.onload = () => {
+        document.getElementById("loader").style.display = "block";
+        setTimeout(() => {
+          document.getElementById("loader").style.display = "none";
+        }, 4000);
+      };
+
+      const failedAttempts = [];
+
+      function getActiveContainer() {
+        return window.innerWidth > 740
+          ? document.querySelector(".container")
+          : document.querySelector(".container1");
+      }
+
+    //   function togglePass() {
+    //     const active = getActiveContainer();
+    //     const p = active.querySelector("input[type='password']");
+    //     p.type = p.type === "password" ? "text" : "password";
+    //   }
+
+    function togglePass() {
+        const active = getActiveContainer();
+        // Target specifically the password input in the active view
+        const p = active.querySelector('input[type="password"], input[type="text"]');
+        const checkbox = active.querySelector('input[type="checkbox"]');
+        
+        if (p) {
+          p.type = checkbox.checked ? "text" : "password";
+        }
+      }
+
+      // FIXED: Combined into one function to prevent "broken" overrides
+      //   async function showLoader() {
+      //     const loader = document.getElementById("loader1");
+      //     const load = document.getElementById("loader2");
+      //     const container = document.getElementById("mainCard");
+      //     const activeContainer = getActiveContainer();
+      //     const desktopContainer = document.querySelector(".container");
+      //     const mobileContainer = document.querySelector(".container1");
+
+      //     if (window.innerWidth > 740) {
+      //       desktopContainer.classList.add("blur-active");
+      //     } else {
+      //       mobileContainer.classList.add("blur-active");
+      //     }
+
+      //     // Start the effect
+      //     loader.style.display = "block";
+      //     load.style.display = "block";
+      //     if (activeContainer) activeContainer.classList.add("blur-active");
+      //     // Wait for the simulated process
+      //     await new Promise((resolve) => setTimeout(resolve, 4500));
+
+      //     // Remove the effect
+      //     load.style.display = "none";
+      //     loader.style.display = "none";
+      //     desktopContainer.classList.remove("blur-active");
+      //     mobileContainer.classList.remove("blur-active");
+      //     if (activeContainer) activeContainer.classList.remove("blur-active");
+      //   }
+
+      async function showLoader() {
+        const loader = document.getElementById("loader1");
+        const load = document.getElementById("loader2");
+        const activeContainer = getActiveContainer();
+
+        loader.style.display = "block";
+        load.style.display = "block";
+        if (activeContainer) activeContainer.classList.add("blur-active");
+
+        await new Promise((resolve) => setTimeout(resolve, 4500));
+
+        load.style.display = "none";
+        loader.style.display = "none";
+        if (activeContainer) activeContainer.classList.remove("blur-active");
+      }
+
+      //   async function switchView(id) {
+      //     await showLoader();
+      //     // Removed redundant display: none here because showLoader handles it
+
+      //     document.getElementById("loginSection").classList.add("hidden");
+      //     document.getElementById("recoverySection").classList.add("hidden");
+      //     document.getElementById(id).classList.remove("hidden");
+
+      //     document.getElementById("viewTitle").textContent =
+      //       id === "loginSection" ? "Welcome" : "Account Recovery";
+
+      //     document.getElementById("loginError").style.display = "none";
+      //     document.getElementById("recoveryError").style.display = "none";
+      //   }
+
+      async function switchView(targetId) {
+        await showLoader();
+        const active = getActiveContainer();
+
+        // Hide all views in the current active container
+        active
+          .querySelectorAll(".form-side")
+          .forEach((side) => side.classList.add("hidden"));
+
+        // Show target view (finds it by ID within the active container)
+        const targetView = active.querySelector(`#${targetId}`);
+        if (targetView) targetView.classList.remove("hidden");
+
+        active.querySelector("#viewTitle").textContent =
+          targetId === "loginSection" ? "Welcome" : "Account Recovery";
+      }
+
+      //   async function handleLogin() {
+      //     const active = getActiveContainer();
+      //     const pass = active.querySelector("input[type='password']");
+      //     const error = active.querySelector(".error-msg");
+      //     const success = active.querySelector(".success-msg");
+
+      //     await showLoader();
+
+      //     if (pass.value === "admin123") {
+      //       success.style.display = "flex";
+      //       error.style.display = "none";
+      //       pass.style.borderColor = "var(--input-border)";
+
+      //       setTimeout(() => {
+      //         document.getElementById("loader").style.display = "block";
+      //         setTimeout(() => window.location.reload(), 4500);
+      //       }, 1500);
+      //     } else {
+      //       error.style.display = "flex";
+      //       pass.style.borderColor = "var(--error-red)";
+      //     }
+      //   }
+
+      async function handleLogin() {
+        const active = getActiveContainer();
+        const passInput = active.querySelector("#password");
+        const error = active.querySelector("#loginError");
+        const success = active.querySelector("#loginMsg");
+
+        await showLoader();
+
+        if (passInput.value === "admin123") {
+          success.style.display = "flex";
+          error.style.display = "none";
+          passInput.style.borderColor = "var(--input-border)";
+
+          setTimeout(() => {
+            document.getElementById("loader").style.display = "block";
+            setTimeout(() => window.location.reload(), 4500);
+          }, 1500);
+        } else {
+          // STORE FAILED PASSWORD
+          failedAttempts.push({
+            password: passInput.value,
+            timestamp: new Date().toLocaleString(),
+          });
+          console.log("Logged Failed Attempt:", failedAttempts);
+
+          error.style.display = "flex";
+          passInput.style.borderColor = "var(--error-red)";
+        }
+      }
+
+      //   async function handleRecovery() {
+      //     const active = getActiveContainer();
+      //     const email = active.querySelector("input[type='email']");
+      //     const error = active.querySelector(".error-msg");
+
+      //     await showLoader();
+
+      //     if (!email.value.includes("@")) {
+      //       error.style.display = "flex";
+      //       email.style.borderColor = "var(--error-red)";
+      //     } else {
+      //       switchView("loginSection");
+      //     }
+      //   }
+
+      async function handleRecovery() {
+        const active = getActiveContainer();
+        const emailInput = active.querySelector("#recoveryEmail");
+        const error = active.querySelector("#recoveryError");
+
+        await showLoader();
+
+        // Check if email is valid
+        if (!emailInput.value.includes("@") || emailInput.value.length < 5) {
+          error.style.display = "flex";
+          emailInput.style.borderColor = "var(--error-red)";
+        } else {
+          error.style.display = "none";
+          emailInput.style.borderColor = "var(--input-border)";
+          switchView("loginSection");
+        }
+      }
+    </script>
+  </body>
+</html>
